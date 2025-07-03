@@ -51,6 +51,10 @@ jobs:
           CIBW_BEFORE_ALL: |
             bash ci/run_ci.sh install_bazel
             bash ci/deploy.sh bump_py_version
+          CIBW_BEFORE_ALL_LINUX: |
+            yum -y install wget
+            bash ci/run_ci.sh install_bazel
+            bash ci/deploy.sh bump_py_version
           CIBW_BEFORE_BUILD: "bash ci/deploy.sh build_pyfory"
 
       - name: Upload Wheel Artifact
