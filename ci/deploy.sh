@@ -95,7 +95,7 @@ bump_py_version() {
   local version="$1"
   if [ -z "$version" ]; then
     # Get the latest tag from the current Git repository
-    version=$(git describe --tags --abbrev=0)
+    version=$(git describe --always --tags --dirty)
     # Check if the tag starts with 'v' and strip it
     if [[ $version == v* ]]; then
       version="${version:1}"
