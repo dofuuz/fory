@@ -100,6 +100,12 @@ bump_py_version() {
     if [[ $version == v* ]]; then
       version="${version:1}"
     fi
+
+    # Check if version starts with a digit; if not, treat it as hash
+    if ! [[ $version =~ ^[0-9] ]]; then
+      # Append hash to a fallback version to make it PEP 440-compatible
+      version="0.0.0.dev0+${version}"
+    fi
   fi
   python "$ROOT/ci/release.py" bump_version -l python -version "$version"
 }
