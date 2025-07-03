@@ -43,7 +43,6 @@ jobs:
         with:
             package-dir: python
         env:
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           # Consider adding a test command for better validation.
           CIBW_TEST_COMMAND: ""
           CIBW_BEFORE_ALL_WINDOWS: |

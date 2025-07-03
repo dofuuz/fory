@@ -81,7 +81,7 @@ install_bazel() {
   BINARY_URL="https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-${OS}-${ARCH}"
 
   echo "Downloading bazel from: $BINARY_URL"
-  sudo wget -q -O "$BAZEL_DIR/bazel" "$BINARY_URL" || { echo "Failed to download bazel"; exit 1; }
+  sudo wget -q -O "$BAZEL_DIR/bazel" "$BINARY_URL" #|| { echo "Failed to download bazel"; exit 1; }
 
   sudo chmod +x "$BAZEL_DIR/bazel"
 
