@@ -101,9 +101,9 @@ bump_py_version() {
       version="${version:1}"
     fi
 
-    # Check if version starts with a digit; if not, treat it as hash
-    if ! [[ $version =~ ^[0-9] ]]; then
-      # Append hash to a fallback version to make it PEP 440-compatible
+    # Match against basic PEP 440 versions like 1.2.3, 1.0.0a1, 1.0.0.dev1, etc.
+    if ! [[ $version =~ ^[0-9]+(\.[0-9]+)*([a-zA-Z0-9\.\+\-]*)?$ ]]; then
+      # Not a valid version -> create fallback
       version="0.0.0.dev0+${version}"
     fi
   fi
