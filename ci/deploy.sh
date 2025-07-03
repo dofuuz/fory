@@ -131,7 +131,7 @@ build_pyfory() {
     bazel build //:cp_fory_so
   fi
 
-  python setup.py bdist_wheel --dist-dir=../dist
+  # python setup.py bdist_wheel --dist-dir=../dist
   popd
 }
 
