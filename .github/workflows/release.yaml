@@ -52,7 +52,7 @@ jobs:
             bash ci/run_ci.sh install_bazel
             bash ci/deploy.sh bump_py_version
           CIBW_BEFORE_ALL_LINUX: |
-            yum -y install wget
+            yum -y install sudo wget
             bash ci/run_ci.sh install_bazel
             bash ci/deploy.sh bump_py_version
           CIBW_BEFORE_BUILD: "bash ci/deploy.sh build_pyfory"
