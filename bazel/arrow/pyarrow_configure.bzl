@@ -15,6 +15,46 @@ def _is_windows(repository_ctx):
         return True
     return False
 
+def which(repository_ctx, program_name):
+    """Returns the full path to a program on the execution platform.
+
+    Args:
+      repository_ctx: the repository_ctx
+      program_name: name of the program on the PATH
+
+    Returns:
+      The full path to a program on the execution platform.
+    """
+    if _is_windows(repository_ctx):
+        if not program_name.endswith(".exe"):
+            program_name = program_name + ".exe"
+        result = execute(repository_ctx, ["C:\\Windows\\System32\\where.exe", program_name])
+    else:
+        result = execute(repository_ctx, ["which", program_name])
+    return result.stdout.rstrip()
+
+def get_python_bin(repository_ctx):
+    """Gets the python bin path.
+
+    Args:
+      repository_ctx: the repository_ctx
+
+    Returns:
+      The python bin path.
+    """
+    python_bin = get_host_environ(repository_ctx, PYTHON_BIN_PATH)
+    if python_bin != None:
+        return python_bin
+    python_bin_path = which(repository_ctx, "python")
+    if python_bin_path == None:
+        _fail("Cannot find python in PATH, please make sure " +
+                         "python is installed and add its directory in PATH, or --define " +
+                         "%s='/something/else'.\nPATH=%s" % (
+                             PYTHON_BIN_PATH,
+                             get_environ("PATH", ""),
+                         ))
+    return python_bin_path
+
 def _execute(
         repository_ctx,
         cmdline,
@@ -218,6 +258,8 @@ def _pyarrow_pip_impl(repository_ctx):
     # python 3.x is usually named as `python` by default on windows.
     if _is_windows(repository_ctx):
         python_bin = "python"
+
+    python_bin = get_python_bin(repository_ctx)
 
     arrow_header_dir = _get_pyarrow_include(repository_ctx, python_bin)
     arrow_header_rule = _symlink_genrule_for_dir(
