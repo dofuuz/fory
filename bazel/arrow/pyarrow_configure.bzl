@@ -2,6 +2,8 @@
 
 # This file is derived from https://github.com/tensorflow/tensorflow/blob/5a244072f2b33d2347e803146c244c179c1ddb75/third_party/py/python_configure.bzl.
 
+PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
+
 def _fail(msg):
     """Output failure message when auto configuration fails."""
     red = "\033[0;31m"
@@ -28,10 +30,59 @@ def which(repository_ctx, program_name):
     if _is_windows(repository_ctx):
         if not program_name.endswith(".exe"):
             program_name = program_name + ".exe"
-        result = execute(repository_ctx, ["C:\\Windows\\System32\\where.exe", program_name])
+        result = _execute(repository_ctx, ["C:\\Windows\\System32\\where.exe", program_name])
     else:
-        result = execute(repository_ctx, ["which", program_name])
+        result = _execute(repository_ctx, ["which", program_name])
     return result.stdout.rstrip()
+
+def get_environ(repository_ctx, name, default_value = None):
+    """Returns the value of an environment variable on the execution platform.
+
+    Args:
+      repository_ctx: the repository_ctx
+      name: the name of environment variable
+      default_value: the value to return if not set
+
+    Returns:
+      The value of the environment variable 'name' on the execution platform
+      or 'default_value' if it's not set.
+    """
+    if is_windows(repository_ctx):
+        result = _execute(
+            repository_ctx,
+            ["C:\\Windows\\System32\\cmd.exe", "/c", "echo", "%" + name + "%"],
+            empty_stdout_fine = True,
+        )
+    else:
+        cmd = "echo -n \"$%s\"" % name
+        result = _execute(
+            repository_ctx,
+            [get_bash_bin(repository_ctx), "-c", cmd],
+            empty_stdout_fine = True,
+        )
+    if len(result.stdout) == 0:
+        return default_value
+    return result.stdout
+
+def get_host_environ(repository_ctx, name, default_value = None):
+    """Returns the value of an environment variable on the host platform.
+
+    The host platform is the machine that Bazel runs on.
+
+    Args:
+      repository_ctx: the repository_ctx
+      name: the name of environment variable
+
+    Returns:
+      The value of the environment variable 'name' on the host platform.
+    """
+    if name in repository_ctx.os.environ:
+        return repository_ctx.os.environ.get(name).strip()
+
+    if hasattr(repository_ctx.attr, "environ") and name in repository_ctx.attr.environ:
+        return repository_ctx.attr.environ.get(name).strip()
+
+    return default_value
 
 def get_python_bin(repository_ctx):
     """Gets the python bin path.
