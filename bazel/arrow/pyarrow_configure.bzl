@@ -166,7 +166,15 @@ def _symlink_genrule_for_dir(
 
 def _get_pyarrow_include(repository_ctx, python_bin="python3"):
     """Gets the pyarrow include path."""
-    print(python_bin)
+    result = _execute(
+        repository_ctx, [
+            python_bin, "--version",
+        ],
+        error_msg="Problem getting pyarrow include path.",
+        error_details=(
+            "Is the Python binary path set up right? " + "(See ./configure or "
+            + python_bin + ".) " + "Is distutils installed?"))
+    print(result)
     result = _execute(
         repository_ctx, [
             python_bin, "-c", 'import pyarrow;print(pyarrow.get_include())'
