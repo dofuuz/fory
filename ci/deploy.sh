@@ -129,6 +129,9 @@ build_pyfory() {
   # Fix strange installed deps not found
   pip install setuptools -U
 
+  # Export currnet Python path to Bazel
+  export PYTHON_BIN_PATH=$(which python)
+
   # Detect host architecture and only pass x86_64 config when appropriate
   ARCH=$(uname -m)
   if [[ "$ARCH" == "x86_64" || "$ARCH" == "amd64" ]]; then

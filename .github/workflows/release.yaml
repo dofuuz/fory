@@ -77,7 +77,6 @@ jobs:
           merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -R downloaded_wheels
-
       - name: Publish Wheels to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
