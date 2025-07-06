@@ -168,15 +168,6 @@ def _get_pyarrow_include(repository_ctx, python_bin="python3"):
     """Gets the pyarrow include path."""
     result = _execute(
         repository_ctx, [
-            python_bin, "--version",
-        ],
-        error_msg="Problem getting pyarrow include path.",
-        error_details=(
-            "Is the Python binary path set up right? " + "(See ./configure or "
-            + python_bin + ".) " + "Is distutils installed?"))
-    print(result.stdout)
-    result = _execute(
-        repository_ctx, [
             python_bin, "-c", 'import pyarrow;print(pyarrow.get_include())'
         ],
         error_msg="Problem getting pyarrow include path.",

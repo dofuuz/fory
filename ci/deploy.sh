@@ -101,7 +101,7 @@ bump_py_version() {
       version="${version:1}"
     fi
 
-    # Match against basic PEP 440 versions like 1.2.3, 1.0.0a1, 1.0.0.dev1, etc.
+    # Match against versions like 1.2.3, 1.0.0-a1, 1.0.0.dev1, etc.
     if ! [[ $version =~ ^[0-9]+(\.[0-9]+)+([a-zA-Z0-9\.\+\-]*)?$ ]]; then
       # Not a valid version -> create fallback
       version="0.0.0.dev0+${version}"
@@ -128,10 +128,6 @@ build_pyfory() {
   echo "Install pyfory"
   # Fix strange installed deps not found
   pip install setuptools -U
-
-  python -c "import pyarrow;print(pyarrow.get_include())"
-
-  export PYTHON_BIN_PATH=$(which python)
 
   # Detect host architecture and only pass x86_64 config when appropriate
   ARCH=$(uname -m)
