@@ -42,6 +42,7 @@ jobs:
         with:
             package-dir: python
         env:
+          CIBW_BUILD_FRONTEND: pip
           CIBW_SKIP: "*-win32"
           CIBW_BEFORE_ALL_WINDOWS: |
             bash ci/run_ci.sh install_bazel_windows
@@ -53,7 +54,7 @@ jobs:
             yum -y install sudo wget
             bash ci/run_ci.sh install_bazel
             bash ci/deploy.sh bump_py_version
-          CIBW_BEFORE_BUILD: "bash ci/deploy.sh build_pyfory"
+          CIBW_BEFORE_BUILD: "pip install pyarrow==15.0.0 Cython wheel pytest"
           # Consider adding a test command for better validation.
           CIBW_TEST_COMMAND: ""
 
