@@ -18,55 +18,52 @@
 name: Publish Fory
 
 on:
+  workflow_dispatch:
+  pull_request:
   push:
-    tags:
-      - "v*"
+  release:
+    types:
+      - published
 
 jobs:
   build-wheels:
-    name: Build Wheels
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13]
         os: [ubuntu-latest, ubuntu-24.04-arm, macos-13, macos-14, windows-2022]  # macos-13: x86, macos-14: arm64
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.0.0
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install bazel
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-              ./ci/run_ci.sh install_bazel_windows
-          else
-              ./ci/run_ci.sh install_bazel
-          fi
-      - name: Update version in setup.py
-        shell: bash
-        run: ci/deploy.sh bump_py_version
-      - name: Build a binary wheel
-        shell: bash
-        run: |
-          ci/deploy.sh build_pyfory
-          ci/deploy.sh rename_wheels dist
+            package-dir: python
+        env:
+          CIBW_BUILD_FRONTEND: pip
+          CIBW_SKIP: "*-win32"
+          CIBW_BEFORE_BUILD: "pip install pyarrow==15.0.0 Cython wheel pytest"
+          # Consider adding a test command for better validation.
+          CIBW_TEST_COMMAND: ""
+
       - name: Upload Wheel Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyfory-wheels-${{ matrix.os }}-${{ matrix.python-version }}
-          path: dist/*.whl
+          name: pyfory-wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
 
   publish-wheels:
     name: Publish Wheels
     runs-on: ubuntu-latest
     needs: build-wheels
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Download Wheel Artifacts
         uses: actions/download-artifact@v4
         with:
+          pattern: cibw-*
           path: downloaded_wheels/
           merge-multiple: true
       - name: Display structure of downloaded files
